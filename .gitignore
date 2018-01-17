@@ -202,3 +202,5 @@ gradle-app.setting
 
 # license
 app/src/main/assets/rightmesh.json
+
+proto/
