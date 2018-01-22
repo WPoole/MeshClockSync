@@ -17,7 +17,7 @@ import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
 
 /**
  * Implementation of the TPSN Time Synchronization algorithm.
- * The short explanation of the algorithm can be found in the bellow link - 3.0 Timing-sync Protocol for Sensor Networks:
+ * The short explanation of the algorithm can be found in the following link - 3.0 Timing-sync Protocol for Sensor Networks:
  * https://www.cse.wustl.edu/~jain/cse574-06/ftp/time_sync/index.html
  * It's a pure implementation. It can be adapted to our network and be more efficient.
  * For example the ACK messages probably could be sent directly to the connected children, instead of broadcasting them.
