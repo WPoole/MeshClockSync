@@ -1,6 +1,9 @@
 package io.left.tpsn;
 
+import static android.content.ContentValues.TAG;
+
 import android.util.Log;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,10 +13,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import static android.content.ContentValues.TAG;
-
 /**
- * Factory to create TpsnMessage objects with simple binary serialization
+ * Factory to create TpsnMessage objects with simple binary serialization.
  */
 public class TpsnMessageFactory extends BaseTpsnMessageFactory {
 
@@ -73,10 +74,10 @@ public class TpsnMessageFactory extends BaseTpsnMessageFactory {
      * {@inheritDoc}
      */
     @Override
-    public byte[] create(TpsnMessageType type, int level, long timeStamp_1) {
+    public byte[] create(TpsnMessageType type, int level, long timeStamp1) {
         TpsnMessage msgObj = new TpsnMessage(type);
         msgObj.setLevel(level);
-        msgObj.setTimeStamp_1(timeStamp_1);
+        msgObj.setTimeStamp1(timeStamp1);
         byte[] msg = toByteArray(msgObj);
 
         return msg;
@@ -86,12 +87,14 @@ public class TpsnMessageFactory extends BaseTpsnMessageFactory {
      * {@inheritDoc}
      */
     @Override
-    public byte[] create(TpsnMessageType type, int level, long timeStamp_1, long timeStamp_2, long timeStamp_3, String receiverId) {
+    public byte[] create(TpsnMessageType type, int level,
+                         long timeStamp1, long timeStamp2, long timeStamp3,
+                         String receiverId) {
         TpsnMessage msgObj = new TpsnMessage(type);
         msgObj.setLevel(level);
-        msgObj.setTimeStamp_1(timeStamp_1);
-        msgObj.setTimeStamp_2(timeStamp_2);
-        msgObj.setTimeStamp_3(timeStamp_3);
+        msgObj.setTimeStamp1(timeStamp1);
+        msgObj.setTimeStamp2(timeStamp2);
+        msgObj.setTimeStamp3(timeStamp3);
         msgObj.setReceiverId(receiverId);
         byte[] msg = toByteArray(msgObj);
 
@@ -104,15 +107,12 @@ public class TpsnMessageFactory extends BaseTpsnMessageFactory {
     @Override
     protected byte[] toByteArray(BaseTpsnMessage msg) {
 
-        TpsnMessage tpsnMsg = null;
-        try{
-            tpsnMsg = (TpsnMessage) msg;
-        }
-        catch (Exception ex){
-            Log.e(TAG, "Failed to cast Base message to the actual TpsnMessage.", ex);
+        if (!(msg instanceof TpsnMessage)) {
+            Log.e(TAG, "Invalid message type.");
             return null;
         }
 
+        TpsnMessage tpsnMsg = (TpsnMessage) msg;
         byte[] bytes = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out = null;
@@ -140,9 +140,9 @@ public class TpsnMessageFactory extends BaseTpsnMessageFactory {
     private static class TpsnMessage extends BaseTpsnMessage implements Serializable {
         private TpsnMessageType type;
         private int level;
-        private long timeStamp_1;
-        private long timeStamp_2;
-        private long timeStamp_3;
+        private long timeStamp1;
+        private long timeStamp2;
+        private long timeStamp3;
         private String receiverId;
 
         private TpsnMessage(TpsnMessageType type) {
@@ -157,16 +157,16 @@ public class TpsnMessageFactory extends BaseTpsnMessageFactory {
             return level;
         }
 
-        public long getTimeStamp_1() {
-            return timeStamp_1;
+        public long getTimeStamp1() {
+            return timeStamp1;
         }
 
-        public long getTimeStamp_2() {
-            return timeStamp_2;
+        public long getTimeStamp2() {
+            return timeStamp2;
         }
 
-        public long getTimeStamp_3() {
-            return timeStamp_3;
+        public long getTimeStamp3() {
+            return timeStamp3;
         }
 
         public String getReceiverId() {
@@ -177,16 +177,16 @@ public class TpsnMessageFactory extends BaseTpsnMessageFactory {
             this.level = level;
         }
 
-        public void setTimeStamp_1(long timeStamp_1) {
-            this.timeStamp_1 = timeStamp_1;
+        public void setTimeStamp1(long timeStamp1) {
+            this.timeStamp1 = timeStamp1;
         }
 
-        public void setTimeStamp_2(long timeStamp_2) {
-            this.timeStamp_2 = timeStamp_2;
+        public void setTimeStamp2(long timeStamp2) {
+            this.timeStamp2 = timeStamp2;
         }
 
-        public void setTimeStamp_3(long timeStamp_3) {
-            this.timeStamp_3 = timeStamp_3;
+        public void setTimeStamp3(long timeStamp3) {
+            this.timeStamp3 = timeStamp3;
         }
 
         public void setReceiverId(String receiverId) {

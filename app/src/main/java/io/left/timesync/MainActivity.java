@@ -1,5 +1,8 @@
 package io.left.timesync;
 
+import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
+import static io.left.rightmesh.mesh.MeshManager.REMOVED;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -9,12 +12,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
+
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
 import io.left.rightmesh.id.MeshID;
@@ -25,30 +23,37 @@ import io.left.rightmesh.util.RightMeshException;
 import io.left.tpsn.TpsnMessageFactory;
 import io.left.tpsn.TpsnSyncManager;
 import io.reactivex.functions.Consumer;
-import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
-import static io.left.rightmesh.mesh.MeshManager.REMOVED;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 //android:gravity="bottom"
 
-public class MainActivity extends Activity implements MeshStateListener, ClockSyncManager.EventListener {
+public class MainActivity extends Activity
+        implements MeshStateListener, ClockSyncManager.EventListener {
 
     // Port to bind app to.
     private static final int APP_PORT = 1010;
 
     private static final String PATTERN = "CLOCK_SYNC";
 
-    private static String TAG = TpsnSyncManager.class.getCanonicalName();
+    private static final String TAG = TpsnSyncManager.class.getCanonicalName();
 
     // MeshManager instance - interface to the mesh network.
-    AndroidMeshManager mm = null;
+    private AndroidMeshManager mMeshManager = null;
 
     // Set to keep track of peers connected to the mesh.
-    HashSet<MeshID> users = new HashSet<>();
+    private HashSet<MeshID> mUsers = new HashSet<>();
 
-    private ClockSyncManager clockSyncManager;
-    private Timer timer = new Timer(true);
-    private TimerTask timerClockTask;
-    private SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss:SSS");
+    private ClockSyncManager mClockSyncManager;
+    private Timer mTimer = new Timer(true);
+    private TimerTask mTimerClockTask;
+    private SimpleDateFormat mSdf = new SimpleDateFormat("hh:mMeshManager:ss:SSS");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,14 +67,16 @@ public class MainActivity extends Activity implements MeshStateListener, ClockSy
         textView.setMovementMethod(new ScrollingMovementMethod());
 
         final TimeZone timeZone = TimeZone.getTimeZone("PST");
-        this.sdf.setTimeZone(timeZone);
+        this.mSdf.setTimeZone(timeZone);
 
-        mm = AndroidMeshManager.getInstance(MainActivity.this, MainActivity.this, PATTERN);
-        clockSyncManager = TpsnSyncManager.getInstance(mm, APP_PORT, new TpsnMessageFactory());
-        clockSyncManager.registerEventListener(MainActivity.this);
+        mMeshManager = AndroidMeshManager.getInstance(MainActivity.this,
+                MainActivity.this, PATTERN);
+        mClockSyncManager = TpsnSyncManager.getInstance(mMeshManager, APP_PORT,
+                new TpsnMessageFactory());
+        mClockSyncManager.registerEventListener(MainActivity.this);
     }
 
-    public void clear(View v){
+    public void clear(View v) {
         TextView log = findViewById(R.id.txtLog);
         log.setText("");
     }
@@ -88,19 +95,19 @@ public class MainActivity extends Activity implements MeshStateListener, ClockSy
      * Called by the {@link MeshService} when the mesh state changes. Initializes mesh connection
      * on first call.
      *
-     * @param meshID our own user id on first detecting
+     * @param meshId our own user id on first detecting
      * @param state state which indicates SUCCESS or an error code
      */
     @Override
-    public void meshStateChanged(MeshID meshID, int state) {
+    public void meshStateChanged(MeshID meshId, int state) {
 
         if (state == MeshStateListener.SUCCESS) {
             try {
                 // Binds this app to MESH_PORT.
                 // This app will now receive all events generated on that port.
-                mm.bind(APP_PORT);
+                mMeshManager.bind(APP_PORT);
 
-                mm.on(PEER_CHANGED, new Consumer() {
+                mMeshManager.on(PEER_CHANGED, new Consumer() {
                     @Override
                     public void accept(Object o) throws Exception {
                         handlePeerChanged((MeshManager.RightMeshEvent) o);
@@ -138,10 +145,10 @@ public class MainActivity extends Activity implements MeshStateListener, ClockSy
 
         //print(event.toString());
 
-        if (event.state != REMOVED && !users.contains(event.peerUuid)) {
-            users.add(event.peerUuid);
-        } else if (event.state == REMOVED){
-            users.remove(event.peerUuid);
+        if (event.state != REMOVED && !mUsers.contains(event.peerUuid)) {
+            mUsers.add(event.peerUuid);
+        } else if (event.state == REMOVED) {
+            mUsers.remove(event.peerUuid);
         }
 
         // Update display.
@@ -158,34 +165,46 @@ public class MainActivity extends Activity implements MeshStateListener, ClockSy
      * Update the {@link TextView} with a list of all peers.
      */
     private void updateStatus() {
-        String status = mm.getUuid().toString().substring(0, 7) + "xxx" + "\npeers:\n";
-        for (MeshID user : users) {
+        String status = mMeshManager.getUuid().toString().substring(0, 7) + "xxx" + "\npeers:\n";
+        for (MeshID user : mUsers) {
             status += user.toString().substring(0, 7) + "xxx" + "\n";
         }
         TextView txtStatus = findViewById(R.id.txtStatus);
         txtStatus.setText(status);
     }
 
-    public void isRootClicked(View v){
+    /**
+     * IsRoot checkbox click event handler.
+     * @param v The View.
+     */
+    public void isRootCbxClicked(View v) {
         CheckBox cbx = findViewById(R.id.cbxIsRoot);
-        ((TpsnSyncManager)clockSyncManager).isRoot(cbx.isChecked());
+        ((TpsnSyncManager) mClockSyncManager).isRoot(cbx.isChecked());
     }
 
-    public void startClicked(View v){
+    /**
+     * Start button click event handler.
+     * @param v The View.
+     */
+    public void startBtnClicked(View v) {
         CheckBox cbx = findViewById(R.id.cbxIsRoot);
         cbx.setEnabled(false);
         Button btnStart = findViewById(R.id.btnStartSync);
         btnStart.setEnabled(false);
-        clockSyncManager.start();
+        mClockSyncManager.start();
     }
 
-    public void reset(View v) {
+    /**
+     * Reset button click event handler.
+     * @param v The View.
+     */
+    public void resetBtnClicked(View v) {
         CheckBox cbx = findViewById(R.id.cbxIsRoot);
         Button btnStart = findViewById(R.id.btnStartSync);
         cbx.setEnabled(true);
         cbx.setChecked(false);
         btnStart.setEnabled(true);
-        clockSyncManager.reset();
+        mClockSyncManager.reset();
     }
 
     /**
@@ -193,11 +212,10 @@ public class MainActivity extends Activity implements MeshStateListener, ClockSy
      *
      * @param v calling view
      */
-    public void configure(View v)
-    {
+    public void configure(View v) {
         try {
-            mm.showSettingsActivity();
-        } catch(RightMeshException ex) {
+            mMeshManager.showSettingsActivity();
+        } catch (RightMeshException ex) {
             MeshUtility.Log(this.getClass().getCanonicalName(), "Service not connected");
         }
     }
@@ -209,8 +227,9 @@ public class MainActivity extends Activity implements MeshStateListener, ClockSy
     protected void onResume() {
         try {
             super.onResume();
-            if(mm != null)
-                mm.resume();
+            if (mMeshManager != null) {
+                mMeshManager.resume();
+            }
         } catch (MeshService.ServiceDisconnectedException e) {
             e.printStackTrace();
         }
@@ -227,48 +246,46 @@ public class MainActivity extends Activity implements MeshStateListener, ClockSy
         Log.d(TAG, "onDestroy");
         try {
             super.onDestroy();
-            if(mm != null)
-                mm.stop();
+            if (mMeshManager != null) {
+                mMeshManager.stop();
+            }
         } catch (MeshService.ServiceDisconnectedException e) {
             e.printStackTrace();
         }
 
-        clockSyncManager.unregisterEventListener(MainActivity.this);
+        mClockSyncManager.unregisterEventListener(MainActivity.this);
     }
 
-    private void startClockTick(){
-        if(timerClockTask != null){
-            timerClockTask.cancel();
+    private void startClockTick() {
+        if (mTimerClockTask != null) {
+            mTimerClockTask.cancel();
         }
 
-        timerClockTask = new TimerTask() {
+        mTimerClockTask = new TimerTask() {
             @Override
             public void run() {
                 updateClock();
             }
         };
 
-        long clockOffset = clockSyncManager.getClockOffset();
+        long clockOffset = mClockSyncManager.getClockOffset();
         //Log.d(TAG, "--> clockOffset: "+clockOffset);
         long droppedMillis = 1000 * (System.currentTimeMillis() / 1000);
-        droppedMillis += 3*1000;
+        droppedMillis += 3 * 1000;
         droppedMillis -= (clockOffset % 1000);
-        timer.scheduleAtFixedRate(timerClockTask,  new Date(droppedMillis), 1000);
+        mTimer.scheduleAtFixedRate(mTimerClockTask,  new Date(droppedMillis), 1000);
     }
 
     /**
-     * Updates the GUI Clock
+     * Updates the GUI Clock.
      */
     private void updateClock() {
-        String timeStr = null;
-        try {
-            timeStr = sdf.format(new Date(System.currentTimeMillis() + clockSyncManager.getClockOffset()));
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to format current time from the system.", e);
-        }
+        String timeStr = mSdf.format(new Date(System.currentTimeMillis()
+                + mClockSyncManager.getClockOffset()));
 
-        if (timeStr == null)
+        if (timeStr == null) {
             return;
+        }
 
         final String fTimeStr = timeStr;
         runOnUiThread(new Runnable() {
@@ -280,9 +297,9 @@ public class MainActivity extends Activity implements MeshStateListener, ClockSy
         });
     }
 
-    private void print(String text){
+    private void print(String text) {
         Log.d(TAG, text);
-        final String ftext = "[" + sdf.format(System.currentTimeMillis()) + "] " + text + "\n";
+        final String ftext = "[" + mSdf.format(System.currentTimeMillis()) + "] " + text + "\n";
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

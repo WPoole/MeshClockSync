@@ -10,7 +10,7 @@ public abstract class BaseTpsnMessageFactory {
      * @param message The binary message.
      * @return The deserialized Tpsn Message Object.
      */
-    public abstract BaseTpsnMessage createFromByteArray(byte[] message) ;
+    public abstract BaseTpsnMessage createFromByteArray(byte[] message);
 
     /**
      * Creates the Tpsn Message.
@@ -31,22 +31,23 @@ public abstract class BaseTpsnMessageFactory {
      * Creates the Tpsn Message.
      * @param type The Tpsn Message type.
      * @param level The Tpsn Tree Level.
-     * @param timeStamp_1 The Tpsn Timestamp 1.
+     * @param timeStamp1 The Tpsn Timestamp 1.
      * @return The Tpsn Message Object.
      */
-    public abstract byte[] create(TpsnMessageType type, int level, long timeStamp_1);
+    public abstract byte[] create(TpsnMessageType type, int level, long timeStamp1);
 
     /**
      * Creates the Tpsn Message.
      * @param type The Tpsn Message type.
      * @param level The Tpsn Tree Level.
-     * @param timeStamp_1 The Tpsn Timestamp 1.
-     * @param timeStamp_2 The Tpsn Timestamp 2.
-     * @param timeStamp_3 The Tpsn Timestamp 3.
+     * @param timeStamp1 The Tpsn Timestamp 1.
+     * @param timeStamp2 The Tpsn Timestamp 2.
+     * @param timeStamp3 The Tpsn Timestamp 3.
      * @param receiverId The Id of receiver node.
      * @return The Tpsn Message Object.
      */
-    public abstract byte[] create(TpsnMessageType type, int level, long timeStamp_1, long timeStamp_2, long timeStamp_3, String receiverId);
+    public abstract byte[] create(TpsnMessageType type, int level, long timeStamp1,
+                                  long timeStamp2, long timeStamp3, String receiverId);
 
 
     /**
