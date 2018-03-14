@@ -11,6 +11,12 @@ public enum TpsnMessageType {
     LEVEL_REQUEST((byte)4);
 
     private final byte type;
-    TpsnMessageType(byte type) {this.type = type;}
-    public byte getValue(){return type;}
+
+    TpsnMessageType(byte type) {
+        this.type = type;
+    }
+
+    public byte getValue() {
+        return type;
+    }
 }

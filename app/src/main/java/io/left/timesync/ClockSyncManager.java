@@ -1,24 +1,27 @@
 package io.left.timesync;
 
 /**
- * The Clock Synchronization Manager
+ * The Clock Synchronization Manager.
  */
 public interface ClockSyncManager {
 
     interface EventListener {
         void clockSyncOffsetChanged(long clockOffset);
+
         void debugMessagereceived(String message);
     }
 
     /**
      * Starts the Synchronization Algorithm.
-     * @return Returns if succeeded to start, otherwise false.
+     *
+     * @return  Returns if succeeded to start, otherwise false.
      */
     boolean start();
 
     /**
      * Starts the Synchronization Algorithm.
-     * @return Returns if succeeded to start, otherwise false.
+     *
+     * @return  True if succeeded to start, otherwise False.
      */
     boolean restart();
 
@@ -29,23 +32,25 @@ public interface ClockSyncManager {
 
     /**
      * Returns the calculated clock offset in ms.
-     * @return
+     *
+     * @return  The clock offset.
      */
     long getClockOffset();
 
     /**
      * Register event listeners.
-     * Returns False if already registered, otherwise True.
-     * @param listener
-     * @return
+     *
+     * @param listener  The event listener.
+     * @return          False if already registered, otherwise True.
      */
     boolean registerEventListener(EventListener listener);
 
     /**
      * Unregister event listeners.
-     * Returns True if successfully unregistered, otherwise if object is not registered returns False.
-     * @param listener
-     * @return
+     *
+     * @param listener  The event listener.
+     * @return          True if successfully unregistered,
+     *                  False if the listener has been registered.
      */
     boolean unregisterEventListener(EventListener listener);
 }
