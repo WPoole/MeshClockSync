@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService;
-import io.left.rightmesh.id.MeshID;
+import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.MeshUtility;
@@ -48,12 +48,12 @@ public class MainActivity extends Activity
     private AndroidMeshManager mMeshManager = null;
 
     // Set to keep track of peers connected to the mesh.
-    private HashSet<MeshID> mUsers = new HashSet<>();
+    private HashSet<MeshId> mUsers = new HashSet<>();
 
     private ClockSyncManager mClockSyncManager;
     private Timer mTimer = new Timer(true);
     private TimerTask mTimerClockTask;
-    private SimpleDateFormat mSdf = new SimpleDateFormat("hh:mMeshManager:ss:SSS");
+    private SimpleDateFormat mSdf = new SimpleDateFormat("hh:mm:ss:SSS");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +99,7 @@ public class MainActivity extends Activity
      * @param state state which indicates SUCCESS or an error code
      */
     @Override
-    public void meshStateChanged(MeshID meshId, int state) {
+    public void meshStateChanged(MeshId meshId, int state) {
 
         if (state == MeshStateListener.SUCCESS) {
             try {
@@ -166,7 +166,7 @@ public class MainActivity extends Activity
      */
     private void updateStatus() {
         String status = mMeshManager.getUuid().toString().substring(0, 7) + "xxx" + "\npeers:\n";
-        for (MeshID user : mUsers) {
+        for (MeshId user : mUsers) {
             status += user.toString().substring(0, 7) + "xxx" + "\n";
         }
         TextView txtStatus = findViewById(R.id.txtStatus);

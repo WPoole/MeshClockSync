@@ -4,7 +4,7 @@ import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
 
 import android.util.Log;
 
-import io.left.rightmesh.id.MeshID;
+import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.proto.MeshDnsProtos;
 import io.left.rightmesh.util.RightMeshException;
@@ -66,8 +66,8 @@ public final class TpsnSyncManager implements ClockSyncManager {
     private TimerTask syncDelayedTask;
     private short retransmitsCount = 0;
     private boolean levelDiscovery = true;
-    private MeshID parentId = null;
-    private MeshID ownId = null;
+    private MeshId parentId = null;
+    private MeshId ownId = null;
     private int treeLevel = Integer.MAX_VALUE;
     private boolean root = false;
     private boolean clockSynchronized = false;
@@ -434,7 +434,7 @@ public final class TpsnSyncManager implements ClockSyncManager {
     private void castData(byte[] message) {
 
         //Get peers that listening to the specific port
-        Set<MeshID> peers = null;
+        Set<MeshId> peers = null;
         try {
             peers = meshManager.getPeers(appPort);
         } catch (RightMeshException e) {
@@ -446,7 +446,7 @@ public final class TpsnSyncManager implements ClockSyncManager {
             return;
         }
 
-        for (MeshID peerMeshId : peers) {
+        for (MeshId peerMeshId : peers) {
             if (peerMeshId.equals(ownId) || peerMeshId.equals(parentId)) {
                 continue;
             }
@@ -466,7 +466,7 @@ public final class TpsnSyncManager implements ClockSyncManager {
     private void sendToChildren(byte[] message) {
 
         //Get peers that listening to the specific port
-        Set<MeshID> peers = null;
+        Set<MeshId> peers = null;
         try {
             peers = meshManager.getPeers(appPort);
         } catch (RightMeshException e) {
@@ -490,12 +490,12 @@ public final class TpsnSyncManager implements ClockSyncManager {
         }
 
         //find out direct children and send the level discovery message
-        for (MeshID peerMeshId : peers) {
+        for (MeshId peerMeshId : peers) {
             if (peerMeshId.equals(ownId) || peerMeshId.equals(parentId)) {
                 continue;
             }
 
-            MeshID nextHopPeer = null;
+            MeshId nextHopPeer = null;
             try {
                 nextHopPeer = meshManager.getNextHopPeer(peerMeshId);
             } catch (RightMeshException e) {
@@ -535,7 +535,7 @@ public final class TpsnSyncManager implements ClockSyncManager {
         }
 
         //Get peers that listening to the a specific port
-        Set<MeshID> peers = null;
+        Set<MeshId> peers = null;
         try {
             peers = meshManager.getPeers(appPort);
         } catch (RightMeshException e) {
@@ -548,7 +548,7 @@ public final class TpsnSyncManager implements ClockSyncManager {
         }
 
         //find out a direct parentId
-        for (MeshID peerMeshId : peers) {
+        for (MeshId peerMeshId : peers) {
             if (peerMeshId.equals(ownId)) {
                 continue;
             }
